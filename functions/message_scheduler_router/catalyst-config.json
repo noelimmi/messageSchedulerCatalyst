@@ -1,0 +1,10 @@
+{
+	"deployment": {
+		"name": "message_scheduler_router",
+		"stack": "node10",
+		"type": "advancedio"
+	},
+	"execution": {
+		"main": "index.js"
+	}
+}

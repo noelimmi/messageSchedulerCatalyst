@@ -1,0 +1,9 @@
+{
+  "functions": {
+    "targets": [
+      "message_scheduler_router"
+    ],
+    "ignore": [],
+    "source": "functions"
+  }
+}

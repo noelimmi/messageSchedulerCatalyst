@@ -1,0 +1,35 @@
+{
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": 6594000000004001,
+      "name": "messageScheduler",
+      "domain": {
+        "id": 10020180818,
+        "name": "messagescheduler-716534823.development"
+      },
+      "env": [
+        {
+          "idx": 1,
+          "id": "716534823",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ],
+  "migration": {
+    "1.0.2": {
+      "completed": true
+    },
+    "last_success": "1.0.2"
+  }
+}
