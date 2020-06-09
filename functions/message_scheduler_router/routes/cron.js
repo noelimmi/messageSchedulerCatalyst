@@ -57,13 +57,15 @@ router.post("/createcron", async (req, res) => {
 
     //Getting Cron Deamon
     let cron = app.cron();
-    let oneTimeCron = await cron.createCron(cronConfig);
-    oneTimeCron["cronShortId"] = cronShortId;
+    let oneTimeCron = cron.createCron(cronConfig);
+    oneTimeCron.then((response) => {
+      response["cronShortId"] = cronShortId
+    });
 
     //send cron details
     return res.status(200).json({
       status: true,
-      data: oneTimeCron
+      data: "Cron initiated...."
     });
 
   } catch (error) {
