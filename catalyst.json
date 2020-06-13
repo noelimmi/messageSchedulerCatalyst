@@ -1,9 +1,13 @@
 {
   "functions": {
     "targets": [
-      "message_scheduler_router"
+      "message_scheduler_router",
+      "message_scheduler_cron"
     ],
     "ignore": [],
     "source": "functions"
+  },
+  "client": {
+    "source": "client"
   }
 }

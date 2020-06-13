@@ -1,0 +1,10 @@
+{
+	"deployment": {
+		"name": "message_scheduler_cron",
+		"stack": "node10",
+		"type": "cron"
+	},
+	"execution": {
+		"main": "index.js"
+	}
+}

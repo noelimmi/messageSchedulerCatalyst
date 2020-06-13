@@ -1,0 +1,9 @@
+{
+	"name": "message_scheduler_cron",
+	"version": "1.0.0",
+	"main": "index.js",
+	"author": "immanuel.n@zohocorp.com",
+	"dependencies": {
+		"zcatalyst-sdk-node": "latest"
+	}
+}
