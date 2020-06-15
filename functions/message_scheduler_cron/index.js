@@ -12,7 +12,7 @@ const postToChat = async (cronDetails, context) => {
     const zuid = cronDetails.getCronParam("zuid");
     const scheduledTimestamp = cronDetails.getCronParam("scheduledTimestamp");
     //Get Access Token
-    const accessToken = await getAccessToken();
+    const accessToken = await getAccessToken(app, zuid);
     if (!accessToken) {
       throw new Error("Error in getting Access Token...");
     }
@@ -34,8 +34,8 @@ const postToChat = async (cronDetails, context) => {
     }
     context.closeWithSuccess();
   } catch (error) {
-    console.log(error);
     context.closeWithFailure();
+    console.log(error);
   }
 };
 
