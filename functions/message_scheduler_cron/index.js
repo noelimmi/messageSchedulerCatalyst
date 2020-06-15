@@ -1,5 +1,9 @@
 module.exports = (cronDetails, context) => {
 	console.log('Hello from index.js');
+	
+	console.log(cronDetails.getCronParam('immi'));
+
+	console.log(cronDetails.getCronParam('scheduledTimestamp'));
 
 	// let cronParams = cronDetails.getCronParam('');
 	// let remainingExecutionCount = cronDetails.getRemainingExecutionCount();

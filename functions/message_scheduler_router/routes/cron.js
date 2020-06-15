@@ -5,6 +5,56 @@ const shortid = require('shortid');
 //Init Router
 const router = express.Router();
 
+router.post("/createcron2", async (req, res) => {
+  try {
+    const app = catalyst.initialize(req);
+
+    //Destructure JSON Body..
+    const {
+      scheduledTimestamp,
+    } = req.body;
+
+    //Cron Details
+    const cronShortId = shortid.generate();
+    
+    //Cron Config
+    let cronConfig = {
+      cron_function_id:"6594000000020003",
+      cron_name: cronShortId,
+      cron_type: "OneTime",
+      status: true,
+      cron_url_details: {
+        params: {
+          immi:"immi",
+          scheduledTimestamp:scheduledTimestamp,
+        }
+      },
+      job_detail: {
+        time_of_execution: parseInt(scheduledTimestamp)
+      }
+    };
+
+    //Getting Cron Deamon
+    let cron = app.cron();
+    let oneTimeCron = await cron.createCron(cronConfig);
+    //send cron details
+    return res.status(200).json({
+      status: true,
+      data: oneTimeCron
+    });
+
+  } catch (error) {
+    console.log("Error Occured..");
+    console.error(error);
+    const errorMsg = error.message || "Internal server error occurred. Please try again in some time.";
+    return res.status(500).send({
+      "status": false,
+      "data": errorMsg,
+    });
+  }
+});
+
+
 router.post("/createcron", async (req, res) => {
   try {
     const app = catalyst.initialize(req);

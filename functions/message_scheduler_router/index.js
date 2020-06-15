@@ -1,5 +1,6 @@
 const express = require("express");
 const cronRoute = require("./routes/cron");
+const oauthRoute = require("./routes/oauth");
 const applyMiddleware = require("./middleware");
 
 //Init Express App
@@ -12,6 +13,7 @@ applyMiddleware(expressApp);
 
 //Routes
 expressApp.use("/cron", cronRoute);
+expressApp.use("/oauth",oauthRoute);
 
 
 module.exports = expressApp;
