@@ -36,7 +36,7 @@ router.get("/callback", async (req, res) => {
           code,
           state,
           grant_type: "authorization_code",
-          scope: "ZohoCliq.Webhooks.CREATE,ZohoCliq.Users.READ",
+          scope: "ZohoCliq.Webhooks.CREATE",
           client_id: config.client_id,
           client_secret: config.client_secret,
           redirect_uri: config.redirect_uri,
@@ -45,39 +45,24 @@ router.get("/callback", async (req, res) => {
     );
 
     //Checks if token response is not 200 then throw error
-    if (tokenResponse.status !== 200)
+    if (tokenResponse.status !== 200) {
       throw new Error(
         `Token Request failed with status ${tokenResponse.status}.`
       );
-
-    // destructure access_token,refresh_token
-    const { access_token, refresh_token } = tokenResponse.data;
-
-    const userDetailsResponse = await axios.get(
-      `https://cliq.zoho.com/api/v2/users/${state}`,
-      {
-        headers: {
-          Authorization: `Zoho-oauthtoken ${access_token}`,
-        },
-      }
-    );
-
-    //Checks if user details response is not 200 then throw error
-    if (userDetailsResponse.status !== 200) {
-      throw new Error(
-        `Get User Request failed with status ${userDetailsResponse.status}.`
-      );
     }
 
-    //Get User Id;
-    const zuid = userDetailsResponse.data.data.id;
+    // destructure access_token,refresh_token
+    const { access_token, refresh_token, expires_in } = tokenResponse.data;
+
+    const expireTimestamp = Date.now() + parseInt(expires_in) * 1000;
 
     //Init catalyst instance and formation of rowData to be inserted
     const app = catalyst.initialize(req);
     const rowData = {
-      zuid,
+      zuid: state,
       accessToken: access_token,
       refreshToken: refresh_token,
+      accessTokenExpires: expireTimestamp,
     };
 
     //Adding Table Row in deattached manner
