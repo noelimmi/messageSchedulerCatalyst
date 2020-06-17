@@ -6,15 +6,37 @@ const axios = require("axios");
 //Init Router
 const router = express.Router();
 
+// router.get("/checkUser/:userId", async (req, res) => {
+//   try {
+//     const app = catalyst.initialize(req);
+//     const dbResponse = await checkUser(app, req.params.userId);
+//     let isExist = false;
+//     if (dbResponse.length > 0) {
+//       isExist = true;
+//     }
+//     return res.status(200).send({ status: true, isExist });
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).send({ status: false, isExist: false });
+//   }
+// });
+
 router.get("/checkUser/:userId", async (req, res) => {
   try {
     const app = catalyst.initialize(req);
-    const dbResponse = await checkUser(app, req.params.userId);
-    let isExist = false;
-    if (dbResponse.length > 0) {
-      isExist = true;
-    }
-    return res.status(200).send({ status: true, isExist });
+    console.log(req.params.userId);
+
+    const searchQuery = {
+      search: req.params.userId,
+      search_table_columns: {
+        oauthManagement: ["zuid"],
+      },
+    };
+    app
+      .search()
+      .executeSearchQuery(searchQuery)
+      .then((resp) => res.send(resp))
+      .catch((err) => res.send({ error: err.message }));
   } catch (error) {
     console.log(error);
     return res.status(500).send({ status: false, isExist: false });
