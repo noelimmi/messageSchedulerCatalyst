@@ -1,27 +1,36 @@
 const express = require("express");
-const { MESSAGEACTION, FUNCTION, COMMAND } = require("../extension/type");
-const messageActionHandler = require("../extension/messageActionHandler");
-const formSubmitHandler = require("../extension/formSubmitHandler");
-const commadExecutionHandler = require("../extension/commadExecutionHandler");
+const {
+  SCHEDULECOMMAND,
+  VIEWSCHEDULEDCOMMAND,
+  SCHEDULEMESSAGEACTION,
+  SCHEDULEFORMHANDLER,
+} = require("../extension/component");
+const scheduleMessageAction = require("../extension/scheduleMessageAction");
+const scheduleFormHandler = require("../extension/scheduleFormHandler");
+const scheduleCommand = require("../extension/scheduleCommand");
+const viewScheduledCommand = require("../extension/viewScheduledCommand");
 
 //Init Router
 const router = express.Router();
 
 router.post("/callback", async (req, res, next) => {
   try {
-    const type = req.body.type;
+    const type = req.body.name;
     switch (type) {
-      case MESSAGEACTION:
-        messageActionHandler(req, res, next);
+      case SCHEDULECOMMAND:
+        scheduleCommand(req, res, next);
         break;
-      case COMMAND:
-        commadExecutionHandler(req, res, next);
+      case VIEWSCHEDULEDCOMMAND:
+        viewScheduledCommand(req, res, next);
         break;
-      case FUNCTION:
-        formSubmitHandler(req, res, next);
+      case SCHEDULEMESSAGEACTION:
+        scheduleMessageAction(req, res, next);
+        break;
+      case SCHEDULEFORMHANDLER:
+        scheduleFormHandler(req, res, next);
         break;
       default:
-        throw new Error("Type not specified in body");
+        throw new Error("Unknown Component Found");
     }
   } catch (error) {
     console.error(error.message);

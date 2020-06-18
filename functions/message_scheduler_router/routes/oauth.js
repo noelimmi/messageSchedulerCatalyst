@@ -6,39 +6,19 @@ const axios = require("axios");
 //Init Router
 const router = express.Router();
 
-// router.get("/checkUser/:userId", async (req, res) => {
-//   try {
-//     const app = catalyst.initialize(req);
-//     const dbResponse = await checkUser(app, req.params.userId);
-//     let isExist = false;
-//     if (dbResponse.length > 0) {
-//       isExist = true;
-//     }
-//     return res.status(200).send({ status: true, isExist });
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).send({ status: false, isExist: false });
-//   }
-// });
-
 router.get("/checkUser/:userId", async (req, res) => {
   try {
     const app = catalyst.initialize(req);
-    console.log(req.params.userId);
-
-    const searchQuery = {
-      search: req.params.userId,
-      search_table_columns: {
-        oauthManagement: ["zuid"],
-      },
-    };
-    app
-      .search()
-      .executeSearchQuery(searchQuery)
-      .then((resp) => res.send(resp))
-      .catch((err) => res.send({ error: err.message }));
+    const dbResponse = await findUser(app, req.params.userId);
+    let isExist = false;
+    let isActive = false;
+    if (Object.keys(dbResponse).length !== 0) {
+      isExist = true;
+      isActive = dbResponse[`${config.oauthTableName}`][0]["isActive"];
+    }
+    return res.status(200).send({ status: true, isExist, isActive });
   } catch (error) {
-    console.log(error);
+    console.error(error.message);
     return res.status(500).send({ status: false, isExist: false });
   }
 });
@@ -106,11 +86,14 @@ const addToOauthDb = async (app, rowData) => {
   await table.insertRow(rowData);
 };
 
-const checkUser = async (app, userId) => {
-  const zcql = app.zcql();
-  const query = `SELECT zuid FROM ${config.oauthTableName} WHERE zuid=${userId}`;
-  const response = await zcql.executeZCQLQuery(query);
-  return response;
+const findUser = async (app, userId) => {
+  const searchQuery = {
+    search: userId,
+    search_table_columns: {},
+  };
+  searchQuery["search_table_columns"][`${config.oauthTableName}`] = ["zuid"];
+  const result = await app.search().executeSearchQuery(searchQuery);
+  return result;
 };
 
 module.exports = router;

@@ -35,7 +35,7 @@ const postToChat = async (cronDetails, context) => {
     context.closeWithSuccess();
   } catch (error) {
     context.closeWithFailure();
-    console.log(error);
+    console.error(error);
   }
 };
 
@@ -53,7 +53,6 @@ const getAccessToken = async (app, userId) => {
       accessTokenExpires,
       ROWID,
     } = response[0][config.oauthTableName];
-    console.log(refreshToken);
     if (checkExpire(parseInt(accessTokenExpires), Date.now())) {
       return accessToken;
     } else {
