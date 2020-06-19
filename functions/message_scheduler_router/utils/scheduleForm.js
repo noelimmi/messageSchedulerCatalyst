@@ -1,3 +1,14 @@
+const getChatTitle = (chatObj) => {
+  let title = "";
+  if (chatObj.type === "dm") {
+    title =
+      chatObj.members.length > 2 ? chatObj.members[1]["first_name"] : null;
+  } else {
+    title = chatObj.title;
+  }
+  return title;
+};
+
 const getScheduledForm = (hint = "", message = "", datetime = {}) => ({
   output: {
     type: "form",
@@ -33,4 +44,4 @@ const getScheduledForm = (hint = "", message = "", datetime = {}) => ({
   },
 });
 
-module.exports = getScheduledForm;
+module.exports = { getScheduledForm, getChatTitle };
