@@ -4,24 +4,29 @@ const config = require("./config");
 
 const postToChat = async (cronDetails, context) => {
   try {
-    const app = catalyst.initialize(context);
     //Init Catalyst Instance
-    //Get Params
-    const message = cronDetails.getCronParam("message");
-    const chatId = cronDetails.getCronParam("chatId");
-    const zuid = cronDetails.getCronParam("zuid");
-    const scheduledTimestamp = cronDetails.getCronParam("scheduledTimestamp");
+    const app = catalyst.initialize(context);
+    //Get rowId of message
+    const messageId = cronDetails.getCronParam("ROWID");
+    //Get Message Details
+    const { zuid, message, chatId } = await getMessageDetails(app, messageId);
+    //Checks if all required details are found..
+    if (!zuid && !message && !chatId) {
+      throw new Error("Error in getting zuid message chatId...");
+    }
     //Get Access Token
     const { accessToken, ROWID } = await getAccessTokenAndRowId(app, zuid);
-    if (!accessToken) {
+    if (!accessToken && !ROWID) {
       throw new Error("Error in getting Access Token...");
     }
-    //Post TO Chat
-    axios
+    const decryptedMessage = getDecryptedMessage(message);
+
+    //Post To Chat
+    await axios
       .post(
         `https://cliq.zoho.com/api/v2/chats/${chatId}/message`,
         {
-          text: message,
+          text: decryptedMessage,
         },
         {
           headers: {
@@ -30,7 +35,12 @@ const postToChat = async (cronDetails, context) => {
           },
         }
       )
-      .then(() => context.closeWithSuccess())
+      .then(() => {
+        const result = setIsCompleteStatus(app,ROWID,true);
+        if (result) {
+          context.closeWithSuccess();
+        }
+      })
       .catch(async (err) => {
         const result = await setIsActiveUser(app, ROWID, false);
         if (result) {
@@ -41,6 +51,47 @@ const postToChat = async (cronDetails, context) => {
     console.log(error);
     context.closeWithFailure();
   }
+};
+
+const setIsCompleteStatus = (app, ROWID, isComplete) => {
+  try {
+    const datastore = app.datastore();
+    const table = datastore.table(config.scheduledMessageTableName);
+    const updatedRowData = {
+      isComplete,
+      ROWID,
+    };
+    const update = await table.updateRow(updatedRowData);
+    return update;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+const getMessageDetails = async (app, messageId) => {
+  try {
+    const zcql = app.zcql();
+    const query = `SELECT * FROM ${config.scheduledMessageTableName} WHERE ROWID=${messageId}`;
+    const response = await zcql.executeZCQLQuery(query);
+    return response.length > 0
+      ? response[0][config.scheduledMessageTableName]
+      : null;
+  } catch (error) {
+    console.log(error.message);
+    return null;
+  }
+};
+
+const getDecryptedMessage = (text) => {
+  let decipher = crypto.createDecipheriv(
+    config.encryptAlgorithm,
+    Buffer.from(config.encryptKey, "hex"),
+    Buffer.from(config.encryptIv, "hex")
+  );
+  let decrypted = decipher.update(Buffer.from(text, "hex"));
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
 };
 
 const getAccessTokenAndRowId = async (app, userId) => {

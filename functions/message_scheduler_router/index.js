@@ -1,5 +1,4 @@
 const express = require("express");
-const cronRoute = require("./routes/cron");
 const oauthRoute = require("./routes/oauth");
 const cliqRoute = require("./routes/cliq");
 const applyMiddleware = require("./middleware");
@@ -11,7 +10,6 @@ const expressApp = express();
 applyMiddleware(expressApp);
 
 //Routes
-expressApp.use("/cron", cronRoute);
 expressApp.use("/oauth", oauthRoute);
 expressApp.use("/cliq", cliqRoute);
 
