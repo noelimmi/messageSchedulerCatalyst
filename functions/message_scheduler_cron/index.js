@@ -1,6 +1,7 @@
 const axios = require("axios");
 const catalyst = require("zcatalyst-sdk-node");
 const config = require("./config");
+const crypto = require("crypto");
 
 const postToChat = async (cronDetails, context) => {
   try {
@@ -35,8 +36,8 @@ const postToChat = async (cronDetails, context) => {
           },
         }
       )
-      .then(() => {
-        const result = setIsCompleteStatus(app,ROWID,true);
+      .then(async () => {
+        const result = await setIsCompleteStatus(app, messageId, true);
         if (result) {
           context.closeWithSuccess();
         }
@@ -53,7 +54,7 @@ const postToChat = async (cronDetails, context) => {
   }
 };
 
-const setIsCompleteStatus = (app, ROWID, isComplete) => {
+const setIsCompleteStatus = async (app, ROWID, isComplete) => {
   try {
     const datastore = app.datastore();
     const table = datastore.table(config.scheduledMessageTableName);
