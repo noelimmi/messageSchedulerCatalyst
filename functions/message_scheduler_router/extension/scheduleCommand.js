@@ -8,7 +8,8 @@ const scheduleCommand = async (req, res, next) => {
   const userId = req.body.params.user.id;
   const app = catalyst.initialize(req);
   //Finding user and checking if user is active
-  if (isActiveUser(await findUser(app, userId))) {
+  const user = await findUser(app, userId);
+  if (isActiveUser(user)) {
     let message = "";
     if (req.body.params.arguments) {
       message = req.body.params.arguments.slice(0, 1000);

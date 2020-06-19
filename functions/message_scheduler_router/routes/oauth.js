@@ -6,23 +6,6 @@ const axios = require("axios");
 //Init Router
 const router = express.Router();
 
-router.get("/checkUser/:userId", async (req, res) => {
-  try {
-    const app = catalyst.initialize(req);
-    const dbResponse = await findUser(app, req.params.userId);
-    let isExist = false;
-    let isActive = false;
-    if (Object.keys(dbResponse).length !== 0) {
-      isExist = true;
-      isActive = dbResponse[`${config.oauthTableName}`][0]["isActive"];
-    }
-    return res.status(200).send({ status: true, isExist, isActive });
-  } catch (error) {
-    console.error(error.message);
-    return res.status(500).send({ status: false, isExist: false });
-  }
-});
-
 router.get("/callback", async (req, res) => {
   try {
     //Get Code and State(User ID);
@@ -67,11 +50,15 @@ router.get("/callback", async (req, res) => {
       accessTokenExpires: expireTimestamp,
     };
 
-    //Adding Table Row in deattached manner
-    addToOauthDb(app, rowData).catch((e) => console.log(e));
-
-    //Success Redirect
-    return res.redirect(`${config.baseUrl}/app/success.html`);
+    //Adding Table Row and then redirecting
+    addUpdateUser(app, rowData)
+      .then((row) => {
+        res.redirect(`${config.baseUrl}/app/success.html`);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.redirect(`${config.baseUrl}/app/failure.html`);
+      });
   } catch (error) {
     console.log("Error Occured..");
     console.error(error);
@@ -80,20 +67,21 @@ router.get("/callback", async (req, res) => {
   }
 });
 
-const addToOauthDb = async (app, rowData) => {
+//add or update user credentials
+const addUpdateUser = async (app, rowData) => {
+  rowData["isActive"] = true;
+  const zcql = app.zcql();
   const datastore = app.datastore();
   const table = datastore.table(config.oauthTableName);
-  await table.insertRow(rowData);
-};
-
-const findUser = async (app, userId) => {
-  const searchQuery = {
-    search: userId,
-    search_table_columns: {},
-  };
-  searchQuery["search_table_columns"][`${config.oauthTableName}`] = ["zuid"];
-  const result = await app.search().executeSearchQuery(searchQuery);
-  return result;
+  const query = `SELECT ROWID FROM ${config.oauthTableName} WHERE zuid=${rowData.zuid}`;
+  const response = await zcql.executeZCQLQuery(query);
+  if (!response.length) {
+    return await table.insertRow(rowData);
+  } else {
+    const { ROWID } = response[0][config.oauthTableName];
+    rowData["ROWID"] = ROWID;
+    return await table.updateRow(rowData);
+  }
 };
 
 module.exports = router;

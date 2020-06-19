@@ -4,42 +4,46 @@ const config = require("./config");
 
 const postToChat = async (cronDetails, context) => {
   try {
-    //Init Catalyst Instance
     const app = catalyst.initialize(context);
+    //Init Catalyst Instance
     //Get Params
     const message = cronDetails.getCronParam("message");
     const chatId = cronDetails.getCronParam("chatId");
     const zuid = cronDetails.getCronParam("zuid");
     const scheduledTimestamp = cronDetails.getCronParam("scheduledTimestamp");
     //Get Access Token
-    const accessToken = await getAccessToken(app, zuid);
+    const { accessToken, ROWID } = await getAccessTokenAndRowId(app, zuid);
     if (!accessToken) {
       throw new Error("Error in getting Access Token...");
     }
     //Post TO Chat
-    const chatRes = await axios.post(
-      `https://cliq.zoho.com/api/v2/chats/${chatId}/message`,
-      {
-        text: message,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Zoho-oauthtoken ${accessToken}`,
+    axios
+      .post(
+        `https://cliq.zoho.com/api/v2/chats/${chatId}/message`,
+        {
+          text: message,
         },
-      }
-    );
-    if (chatRes.status !== 200) {
-      throw new Error("Post to Chat unsuccessfull");
-    }
-    context.closeWithSuccess();
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Zoho-oauthtoken ${accessToken}`,
+          },
+        }
+      )
+      .then(() => context.closeWithSuccess())
+      .catch(async (err) => {
+        const result = await setIsActiveUser(app, ROWID, false);
+        if (result) {
+          context.closeWithFailure();
+        }
+      });
   } catch (error) {
+    console.log(error);
     context.closeWithFailure();
-    console.error(error);
   }
 };
 
-const getAccessToken = async (app, userId) => {
+const getAccessTokenAndRowId = async (app, userId) => {
   try {
     const zcql = app.zcql();
     const query = `SELECT * FROM ${config.oauthTableName} WHERE zuid=${userId}`;
@@ -54,7 +58,7 @@ const getAccessToken = async (app, userId) => {
       ROWID,
     } = response[0][config.oauthTableName];
     if (checkExpire(parseInt(accessTokenExpires), Date.now())) {
-      return accessToken;
+      return { accessToken, ROWID };
     } else {
       const tokenResponse = await axios.post(
         "https://accounts.zoho.com/oauth/v2/token",
@@ -72,7 +76,7 @@ const getAccessToken = async (app, userId) => {
       );
       const { access_token, expires_in } = tokenResponse.data;
       await updateAccessToken(app, ROWID, access_token, expires_in);
-      return access_token;
+      return { accessToken: access_token, ROWID };
     }
   } catch (error) {
     console.log(error);
@@ -94,10 +98,25 @@ const updateAccessToken = async (app, ROWID, accessToken, expires_in) => {
       accessTokenExpires,
       ROWID,
     };
-    const updateDbResp = await table.updateRow(updatedRowData);
-    console.log(updateDbResp);
+    await table.updateRow(updatedRowData);
   } catch (error) {
-    console.log(error);
+    console.error(error);
+  }
+};
+
+const setIsActiveUser = async (app, ROWID, isActive) => {
+  try {
+    const datastore = app.datastore();
+    const table = datastore.table(config.oauthTableName);
+    const updatedRowData = {
+      isActive,
+      ROWID,
+    };
+    const update = await table.updateRow(updatedRowData);
+    return update;
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 };
 

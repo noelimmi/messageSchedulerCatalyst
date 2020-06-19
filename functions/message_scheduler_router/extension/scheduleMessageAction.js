@@ -1,12 +1,15 @@
+const catalyst = require("zcatalyst-sdk-node");
+const { findUser, isActiveUser } = require("../utils/user");
 const { getScheduledForm, getChatTitle } = require("../utils/scheduleForm");
 const { getCurrentTimeForTimezone } = require("../utils/dateTime");
 const config = require("../config");
 
-const scheduleMessageAction = (req, res, next) => {
+const scheduleMessageAction = async (req, res, next) => {
   const userId = req.body.params.user.id;
   const app = catalyst.initialize(req);
   //Finding user and checking if user is active
-  if (isActiveUser(await findUser(app, userId))) {
+  const user = await findUser(app, userId);
+  if (isActiveUser(user)) {
     let message = "";
     if (req.body.params.message && req.body.params.message.text) {
       message = req.body.params.message.text.slice(0, 1000);

@@ -6,7 +6,7 @@ const getEpochTime = (datetime, timeZoneId) =>
 
 //@params (scheduledEpochTime:number)
 const isGreaterThanCurrent = (scheduledEpochTime) =>
-  scheduledEpochTime > Math.round(Date.now() / 1000);
+  scheduledEpochTime > moment().unix();
 
 //@params (timeZoneId:string)
 const getCurrentTimeForTimezone = (timeZoneId) =>

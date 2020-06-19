@@ -1,4 +1,4 @@
-const isDev = false;
+const isDev = true;
 const baseUrl = isDev
   ? "http://localhost:3000"
   : "https://messagescheduler-716534823.development.zohocatalyst.com";
