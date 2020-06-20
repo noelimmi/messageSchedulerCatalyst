@@ -1,6 +1,7 @@
 const catalyst = require("zcatalyst-sdk-node");
 const { isGreaterThanCurrent, getEpochTime } = require("../utils/dateTime");
 const { createCron } = require("../utils/messageCron");
+const { getChatTitle } = require("../utils/scheduleForm");
 
 const scheduleFormHandler = (req, res, next) => {
   //Get Catalyst Instance
@@ -8,6 +9,7 @@ const scheduleFormHandler = (req, res, next) => {
 
   const zuid = req.body.params.user.id;
   const chatId = req.body.params.chat.id;
+  const chatName = getChatTitle(req.body.params.chat);
 
   const { scheduledTime, message } = req.body.params.form.values;
 
@@ -25,6 +27,7 @@ const scheduleFormHandler = (req, res, next) => {
       chatId,
       message,
       scheduledTimestamp: scheduledEpochTime,
+      chatName,
     };
     //Creating cron in a deattached manner
     setTimeout(() => createCron(app, cronBody), 0);

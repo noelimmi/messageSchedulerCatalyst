@@ -10,13 +10,22 @@ const isGreaterThanCurrent = (scheduledEpochTime) =>
 
 //@params (timeZoneId:string)
 const getCurrentTimeForTimezone = (timeZoneId) =>
-  moment().tz(timeZoneId).format("YYYY-MM-DD[T]HH:mm");
+  moment().utc().tz(timeZoneId).format("YYYY-MM-DD[T]HH:mm");
+
+const getTimeInUserTimeZone = (datetime, timeZoneId) =>
+  moment
+    .utc(datetime, "YYYY-MM-DD HH:mm:ss")
+    .tz(timeZoneId)
+    .format("YYYY-MM-DD HH:mm:ss");
 
 //@params (unixEpoch:number)
 const getDbTime = (unixEpoch) =>
-  moment(unixEpoch * 1000).format("YYYY-MM-DD HH:mm:ss");
+  moment(unixEpoch * 1000)
+    .utc()
+    .format("YYYY-MM-DD HH:mm:ss");
 
 module.exports = {
+  getTimeInUserTimeZone,
   getEpochTime,
   isGreaterThanCurrent,
   getCurrentTimeForTimezone,

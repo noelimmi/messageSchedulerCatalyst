@@ -28,12 +28,28 @@ const createCron = async (app, cronBody) => {
         },
       };
       //Create a Cron
-      await cron.createCron(cronConfig);
+      const cronDetails = await cron.createCron(cronConfig);
+      await updateCronId(app, ROWID, cronDetails.id);
     } else {
       throw new Error("Error adding message to Db.");
     }
   } catch (error) {
     console.error(error.message);
+  }
+};
+
+const updateCronId = async (app, ROWID, cronId) => {
+  try {
+    const datastore = app.datastore();
+    const table = datastore.table(config.scheduledMessageTableName);
+    const updatedRowData = {
+      ROWID,
+      cronId,
+    };
+    await table.updateRow(updatedRowData);
+  } catch (error) {
+    console.log(error.message);
+    return;
   }
 };
 
@@ -63,4 +79,15 @@ const getEncryptedMessage = (text) => {
   return encrypted.toString("hex");
 };
 
-module.exports = { createCron };
+const getDecryptedMessage = (text) => {
+  let decipher = crypto.createDecipheriv(
+    config.encryptAlgorithm,
+    Buffer.from(config.encryptKey, "hex"),
+    Buffer.from(config.encryptIv, "hex")
+  );
+  let decrypted = decipher.update(Buffer.from(text, "hex"));
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
+};
+
+module.exports = { createCron, getDecryptedMessage };

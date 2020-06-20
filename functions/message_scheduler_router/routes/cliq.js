@@ -4,36 +4,16 @@ const {
   VIEWSCHEDULEDCOMMAND,
   SCHEDULEMESSAGEACTION,
   SCHEDULEFORMHANDLER,
+  UTILITYBUTTONHANDLER,
 } = require("../extension/component");
 const scheduleMessageAction = require("../extension/scheduleMessageAction");
 const scheduleFormHandler = require("../extension/scheduleFormHandler");
 const scheduleCommand = require("../extension/scheduleCommand");
 const viewScheduledCommand = require("../extension/viewScheduledCommand");
-const catalyst = require("zcatalyst-sdk-node");
-const config = require("../config");
+const utilityButtonHandler = require("../extension/utilityButtonHandler");
 
 //Init Router
 const router = express.Router();
-
-router.get("/:id", async (req, res) => {
-  const app = catalyst.initialize(req);
-  const message = await getMessageDetails(app, req.params.id);
-  res.send(message);
-});
-
-const getMessageDetails = async (app, messageId) => {
-  try {
-    const zcql = app.zcql();
-    const query = `SELECT * FROM ${config.scheduledMessageTableName} WHERE ROWID=${messageId}`;
-    const response = await zcql.executeZCQLQuery(query);
-    return response.length > 0
-      ? response[0][config.scheduledMessageTableName]
-      : null;
-  } catch (error) {
-    console.log(error.message);
-    return null;
-  }
-};
 
 router.post("/callback", async (req, res, next) => {
   try {
@@ -50,6 +30,9 @@ router.post("/callback", async (req, res, next) => {
         break;
       case SCHEDULEFORMHANDLER:
         scheduleFormHandler(req, res, next);
+        break;
+      case UTILITYBUTTONHANDLER:
+        utilityButtonHandler(req, res, next);
         break;
       default:
         throw new Error("Unknown Component Found");
