@@ -24,7 +24,7 @@ const getDbTime = (unixEpoch) =>
 
 const isLessThanScheduled = (scheduledTime, executionTimestamp) =>
   Math.round(executionTimestamp / 1000) <
-  moment.utc(scheduledTime, "YYYY-MM-DD HH:mm:ss").unixEpoch();
+  moment.utc(scheduledTime, "YYYY-MM-DD HH:mm:ss").unix();
 
 module.exports = {
   getTimeInUserTimeZone,
