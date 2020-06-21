@@ -2,7 +2,7 @@ const moment = require("moment-timezone");
 
 //@params (datetime:string , timeZoneId:string)
 const getEpochTime = (datetime, timeZoneId) =>
-  moment(datetime).tz(timeZoneId).unix();
+  moment.tz(datetime, timeZoneId).unix();
 
 //@params (scheduledEpochTime:number)
 const isGreaterThanCurrent = (scheduledEpochTime) =>
@@ -20,9 +20,9 @@ const getTimeInUserTimeZone = (datetime, timeZoneId) =>
 
 //@params (unixEpoch:number)
 const getDbTime = (unixEpoch) =>
-  moment(unixEpoch * 1000)
-    .utc()
-    .format("YYYY-MM-DD HH:mm:ss");
+  moment.unix(unixEpoch).utc().format("YYYY-MM-DD HH:mm:ss");
+
+console.log(getDbTime(1592739488));
 
 module.exports = {
   getTimeInUserTimeZone,
