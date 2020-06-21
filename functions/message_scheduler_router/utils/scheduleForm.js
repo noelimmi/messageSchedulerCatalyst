@@ -2,7 +2,7 @@ const getChatTitle = (chatObj) => {
   let title = "";
   if (chatObj.type === "dm") {
     title =
-      chatObj.members.length > 2 ? chatObj.members[1]["first_name"] : null;
+      chatObj.members.length === 2 ? chatObj.members[1]["first_name"] : null;
   } else {
     title = chatObj.title;
   }

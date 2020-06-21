@@ -9,7 +9,6 @@ const createCron = async (app, cronBody) => {
     const { scheduledTimestamp } = cronBody;
     const { ROWID } = await addToMessageDb(app, cronBody);
     if (ROWID) {
-      console.log(scheduledTimestamp);
       //Getting Cron Deamon
       const cron = app.cron();
       //Cron Details

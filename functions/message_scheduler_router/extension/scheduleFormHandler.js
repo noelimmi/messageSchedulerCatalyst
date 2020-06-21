@@ -10,7 +10,6 @@ const scheduleFormHandler = (req, res, next) => {
   const zuid = req.body.params.user.id;
   const chatId = req.body.params.chat.id;
   const chatName = getChatTitle(req.body.params.chat);
-
   const { scheduledTime, message } = req.body.params.form.values;
 
   let { time_zone_id, date_time } = scheduledTime;

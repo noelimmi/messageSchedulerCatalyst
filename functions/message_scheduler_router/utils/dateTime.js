@@ -22,8 +22,6 @@ const getTimeInUserTimeZone = (datetime, timeZoneId) =>
 const getDbTime = (unixEpoch) =>
   moment.unix(unixEpoch).utc().format("YYYY-MM-DD HH:mm:ss");
 
-console.log(getDbTime(1592739488));
-
 module.exports = {
   getTimeInUserTimeZone,
   getEpochTime,
