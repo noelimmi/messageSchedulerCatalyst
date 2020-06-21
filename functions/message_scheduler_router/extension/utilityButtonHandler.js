@@ -32,6 +32,7 @@ const utilityButtonHandler = async (req, res, next) => {
         },
       });
     } else {
+      const executionTimestamp = req.body.timestamp;
       let timezone = req.body.params.user.timezone;
       if (timezone === "NST") {
         timezone = "Antarctica/McMurdo";
@@ -41,7 +42,12 @@ const utilityButtonHandler = async (req, res, next) => {
       const page = parseInt(key[1]);
       const limit = parseInt(key[2]);
       const data = await initViewScheduledMessages(app, userId, page, limit);
-      const response = getResponseTable(data, timezone, true);
+      const response = getResponseTable(
+        data,
+        timezone,
+        true,
+        executionTimestamp
+      );
       return res.status(200).json(response);
     }
   } catch (error) {

@@ -22,10 +22,15 @@ const getTimeInUserTimeZone = (datetime, timeZoneId) =>
 const getDbTime = (unixEpoch) =>
   moment.unix(unixEpoch).utc().format("YYYY-MM-DD HH:mm:ss");
 
+const isLessThanScheduled = (scheduledTime, executionTimestamp) =>
+  Math.round(executionTimestamp / 1000) <
+  moment.utc(scheduledTime, "YYYY-MM-DD HH:mm:ss").unixEpoch();
+
 module.exports = {
   getTimeInUserTimeZone,
   getEpochTime,
   isGreaterThanCurrent,
   getCurrentTimeForTimezone,
   getDbTime,
+  isLessThanScheduled,
 };

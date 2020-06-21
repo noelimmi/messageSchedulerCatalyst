@@ -1,8 +1,13 @@
 const config = require("../config");
 const { getDecryptedMessage } = require("./messageCron");
-const { getTimeInUserTimeZone } = require("./dateTime");
+const { getTimeInUserTimeZone, isLessThanScheduled } = require("./dateTime");
 
-const getResponseTable = (data, timezoneId, isNavigation) => {
+const getResponseTable = (
+  data,
+  timezoneId,
+  isNavigation,
+  executionTimestamp
+) => {
   if (!data.result && !Array.isArray(data.result)) {
     throw new Error("data.result(Array) is not received.");
   }
@@ -21,7 +26,14 @@ const getResponseTable = (data, timezoneId, isNavigation) => {
       rowObj["Recipient"] = msg["scheduledMessage"]["chatName"] || "";
       rowObj["Status"] = msg["scheduledMessage"]["isComplete"]
         ? "Sent"
-        : `Scheduled [-🗑️](invoke.function|msgSchUtility||DELETE|${msg["scheduledMessage"]["cronId"]}|${msg["scheduledMessage"]["ROWID"]})`;
+        : `${
+            isLessThanScheduled(
+              msg["scheduledMessage"]["scheduledTimestamp"],
+              executionTimestamp
+            )
+              ? `Scheduled [-🗑️](invoke.function|msgSchUtility||DELETE|${msg["scheduledMessage"]["cronId"]}|${msg["scheduledMessage"]["ROWID"]})`
+              : `Failed`
+          }`;
       rowsList.push(rowObj);
     }
     response = {
