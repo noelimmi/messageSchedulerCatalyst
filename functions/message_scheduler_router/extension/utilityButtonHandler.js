@@ -2,6 +2,7 @@ const {
   getResponseTable,
   initViewScheduledMessages,
 } = require("../utils/scheduledMessage");
+const config = require("../config");
 const catalyst = require("zcatalyst-sdk-node");
 
 const utilityButtonHandler = async (req, res, next) => {
@@ -11,7 +12,25 @@ const utilityButtonHandler = async (req, res, next) => {
     const app = catalyst.initialize(req);
     const action = key[0];
     if (action === "DELETE") {
-      console.log(key[1]);
+      const cronId = key[1];
+      const msgRowId = key[2];
+      const result = await deleteCronAndMessage(app, cronId, msgRowId);
+      if (!result) {
+        return res.status(200).json({
+          output: {
+            type: "banner",
+            status: "failure",
+            text: "Looks like you already deleted this scheduled message.",
+          },
+        });
+      }
+      return res.status(200).json({
+        output: {
+          type: "banner",
+          status: "success",
+          text: "Successfully deleted the scheduled message.",
+        },
+      });
     } else {
       let timezone = req.body.params.user.timezone;
       if (timezone === "NST") {
@@ -34,6 +53,20 @@ const utilityButtonHandler = async (req, res, next) => {
         text: "Something went wrong, please try again after some time.",
       },
     });
+  }
+};
+
+const deleteCronAndMessage = async (app, cronId, ROWID) => {
+  try {
+    const datastore = app.datastore();
+    const table = datastore.table(config.scheduledMessageTableName);
+    const rowData = await table.deleteRow(ROWID);
+    const cron = app.cron();
+    const deleteCron = await cron.deleteCron(cronId);
+    return { ...rowData, ...deleteCron };
+  } catch (error) {
+    console.log(error.message);
+    return null;
   }
 };
 

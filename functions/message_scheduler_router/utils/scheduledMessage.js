@@ -131,7 +131,5 @@ const findUserPaginatedMessage = async (app, userId, startIndex, limit) => {
 
 module.exports = {
   initViewScheduledMessages,
-  getTotalMessageCount,
-  findUserPaginatedMessage,
   getResponseTable,
 };

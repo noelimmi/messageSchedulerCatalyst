@@ -73,7 +73,7 @@ const setIsCompleteStatus = async (app, ROWID, isComplete) => {
 const getMessageDetails = async (app, messageId) => {
   try {
     const zcql = app.zcql();
-    const query = `SELECT * FROM ${config.scheduledMessageTableName} WHERE ROWID=${messageId}`;
+    const query = `SELECT zuid, message, chatId FROM ${config.scheduledMessageTableName} WHERE ROWID=${messageId}`;
     const response = await zcql.executeZCQLQuery(query);
     return response.length > 0
       ? response[0][config.scheduledMessageTableName]
@@ -98,7 +98,7 @@ const getDecryptedMessage = (text) => {
 const getAccessTokenAndRowId = async (app, userId) => {
   try {
     const zcql = app.zcql();
-    const query = `SELECT * FROM ${config.oauthTableName} WHERE zuid=${userId}`;
+    const query = `SELECT accessToken, refreshToken, accessTokenExpires, ROWID FROM ${config.oauthTableName} WHERE zuid=${userId}`;
     const response = await zcql.executeZCQLQuery(query);
     if (!response.length) {
       throw new Error("Cannot find details about that user.");
