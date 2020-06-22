@@ -15,7 +15,9 @@ const viewScheduledCommand = async (req, res, next) => {
     } else if (timezone === "IST") {
       timezone = "Asia/Kolkata";
     }
-    const data = await initViewScheduledMessages(app, userId, 1, 3);
+    const page = 1;
+    const limit = 10;
+    const data = await initViewScheduledMessages(app, userId, page, limit);
     const response = getResponseTable(
       data,
       timezone,

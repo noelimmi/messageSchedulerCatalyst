@@ -11,9 +11,32 @@ const scheduleFormHandler = require("../extension/scheduleFormHandler");
 const scheduleCommand = require("../extension/scheduleCommand");
 const viewScheduledCommand = require("../extension/viewScheduledCommand");
 const utilityButtonHandler = require("../extension/utilityButtonHandler");
+const catalyst = require("zcatalyst-sdk-node");
+const config = require("../config");
 
 //Init Router
 const router = express.Router();
+
+router.get("/:userId", async (req, res) => {
+  const findUser = async (app, userId) => {
+    try {
+      const searchQuery = {
+        search: userId,
+        search_table_columns: {},
+      };
+      searchQuery["search_table_columns"][`${config.oauthTableName}`] = [
+        "zuid",
+      ];
+      const result = await app.search().executeSearchQuery(searchQuery);
+      return result;
+    } catch (error) {
+      return {};
+    }
+  };
+  const app = catalyst.initialize(req);
+  const userId = req.params.userId;
+  res.send(await findUser(app, userId));
+});
 
 router.post("/callback", async (req, res, next) => {
   try {

@@ -9,19 +9,18 @@ const postToChat = async (cronDetails, context) => {
     const app = catalyst.initialize(context);
     //Get rowId of message
     const messageId = cronDetails.getCronParam("ROWID");
-    //Get Message Details
-    const { zuid, message, chatId } = await getMessageDetails(app, messageId);
-    //Checks if all required details are found..
-    if (!zuid && !message && !chatId) {
-      throw new Error("Error in getting zuid message chatId...");
-    }
-    //Get Access Token
+    //Get Zuid
+    const zuid = cronDetails.getCronParam("zuid");
+    //Get Message Details and Access Token
+    const { message, chatId } = await getMessageDetails(app, messageId);
     const { accessToken, ROWID } = await getAccessTokenAndRowId(app, zuid);
-    if (!accessToken && !ROWID) {
-      throw new Error("Error in getting Access Token...");
+    //Checks if all required details are found..
+    if (!message && !chatId && !accessToken && !ROWID) {
+      throw new Error(
+        "Error in getting message chatId Access Token and ROWID..."
+      );
     }
     const decryptedMessage = getDecryptedMessage(message);
-
     //Post To Chat
     await axios
       .post(
@@ -132,7 +131,7 @@ const getAccessTokenAndRowId = async (app, userId) => {
     }
   } catch (error) {
     console.log(error);
-    return null;
+    return { accessToken: null, ROWID: null };
   }
 };
 

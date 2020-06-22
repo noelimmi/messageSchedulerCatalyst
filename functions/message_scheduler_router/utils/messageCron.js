@@ -6,7 +6,7 @@ const { getDbTime } = require("./dateTime");
 const createCron = async (app, cronBody) => {
   try {
     //scheduledTimestamp
-    const { scheduledTimestamp } = cronBody;
+    const { scheduledTimestamp, zuid } = cronBody;
     const { ROWID } = await addToMessageDb(app, cronBody);
     if (ROWID) {
       //Getting Cron Deamon
@@ -21,6 +21,7 @@ const createCron = async (app, cronBody) => {
         cron_url_details: {
           params: {
             ROWID,
+            zuid,
           },
         },
         job_detail: {

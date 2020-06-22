@@ -16,7 +16,7 @@ const getTimeInUserTimeZone = (datetime, timeZoneId) =>
   moment
     .utc(datetime, "YYYY-MM-DD HH:mm:ss")
     .tz(timeZoneId)
-    .format("YYYY-MM-DD HH:mm:ss");
+    .format("MMMM Do YYYY, h:mm a");
 
 //@params (unixEpoch:number)
 const getDbTime = (unixEpoch) =>

@@ -16,10 +16,10 @@ const getResponseTable = (
     const rowsList = [];
     for (let msg of data.result) {
       let rowObj = {};
-      rowObj["Scheduled Time"] = getTimeInUserTimeZone(
+      rowObj["Scheduled Date & Time"] = `*${getTimeInUserTimeZone(
         msg["scheduledMessage"]["scheduledTimestamp"],
         timezoneId
-      );
+      )}*`;
       rowObj["Message"] = getDecryptedMessage(
         msg["scheduledMessage"]["message"]
       );
@@ -45,7 +45,12 @@ const getResponseTable = (
             type: "table",
             title: "",
             data: {
-              headers: ["Scheduled Time", "Message", "Recipient", "Status"],
+              headers: [
+                "Scheduled Date & Time",
+                "Message",
+                "Recipient",
+                "Status",
+              ],
               rows: rowsList,
             },
           },
