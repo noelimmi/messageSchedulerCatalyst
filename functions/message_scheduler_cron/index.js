@@ -12,8 +12,8 @@ const postToChat = async (cronDetails, context) => {
     //Get Zuid
     const zuid = cronDetails.getCronParam("zuid");
     //Get Message Details and Access Token
-    const messagePromise = getMessageDetails(app, messageId);
-    const accessTokenPromise = getAccessTokenAndRowId(app, zuid);
+    const messagePromise = getMessageDetails(app, messageId, context);
+    const accessTokenPromise = getAccessTokenAndRowId(app, zuid, context);
     const { message, chatId } = await messagePromise;
     const { accessToken, ROWID } = await accessTokenPromise;
     //Checks if all required details are found..
@@ -49,6 +49,7 @@ const postToChat = async (cronDetails, context) => {
           context.closeWithFailure();
         }
       });
+    context.closeWithSuccess();
   } catch (error) {
     console.log(error);
     context.closeWithFailure();
@@ -71,7 +72,7 @@ const setIsCompleteStatus = async (app, ROWID, isComplete) => {
   }
 };
 
-const getMessageDetails = async (app, messageId) => {
+const getMessageDetails = async (app, messageId, context) => {
   try {
     const zcql = app.zcql();
     const query = `SELECT zuid, message, chatId FROM ${config.scheduledMessageTableName} WHERE ROWID=${messageId}`;
@@ -80,6 +81,7 @@ const getMessageDetails = async (app, messageId) => {
       ? response[0][config.scheduledMessageTableName]
       : null;
   } catch (error) {
+    context.closeWithFailure();
     console.log(error.message);
     return null;
   }
@@ -109,7 +111,7 @@ const getDecryptedMessage = (text, zuid) => {
   return decrypted.toString();
 };
 
-const getAccessTokenAndRowId = async (app, userId) => {
+const getAccessTokenAndRowId = async (app, userId, context) => {
   try {
     const zcql = app.zcql();
     const query = `SELECT accessToken, refreshToken, accessTokenExpires, ROWID FROM ${config.oauthTableName} WHERE zuid=${userId}`;
@@ -117,18 +119,14 @@ const getAccessTokenAndRowId = async (app, userId) => {
     if (!response.length) {
       throw new Error("Cannot find details about that user.");
     }
-    let {
-      zuid,
-      accessToken,
-      refreshToken,
-      accessTokenExpires,
-      ROWID,
-    } = response[0][config.oauthTableName];
+    let { accessToken, refreshToken, accessTokenExpires, ROWID } = response[0][
+      config.oauthTableName
+    ];
     if (checkExpire(parseInt(accessTokenExpires), Date.now())) {
-      accessToken = getDecryptedMessage(accessToken, zuid);
+      accessToken = getDecryptedMessage(accessToken, userId);
       return { accessToken, ROWID };
     } else {
-      refreshToken = getDecryptedMessage(refreshToken, zuid);
+      refreshToken = getDecryptedMessage(refreshToken, userId);
       const tokenResponse = await axios.post(
         "https://accounts.zoho.com/oauth/v2/token",
         null,
@@ -144,10 +142,18 @@ const getAccessTokenAndRowId = async (app, userId) => {
         }
       );
       const { access_token, expires_in } = tokenResponse.data;
-      updateAccessToken(app, ROWID, access_token, expires_in, zuid);
+      await updateAccessToken(
+        app,
+        ROWID,
+        access_token,
+        expires_in,
+        userId,
+        context
+      );
       return { accessToken: access_token, ROWID };
     }
   } catch (error) {
+    context.closeWithFailure();
     console.log(error);
     return { accessToken: null, ROWID: null };
   }
@@ -157,7 +163,14 @@ const checkExpire = (expiretime, currentTime) => {
   return Math.round(expiretime / 1000) > Math.round(currentTime / 1000);
 };
 
-const updateAccessToken = async (app, ROWID, accessToken, expires_in, zuid) => {
+const updateAccessToken = async (
+  app,
+  ROWID,
+  accessToken,
+  expires_in,
+  zuid,
+  context
+) => {
   try {
     const datastore = app.datastore();
     const table = datastore.table(config.oauthTableName);
@@ -169,6 +182,7 @@ const updateAccessToken = async (app, ROWID, accessToken, expires_in, zuid) => {
     };
     await table.updateRow(updatedRowData);
   } catch (error) {
+    context.closeWithFailure();
     console.error(error);
   }
 };

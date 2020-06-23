@@ -30,8 +30,8 @@ const scheduleCommand = async (req, res, next) => {
   }
   const scheduledForm = getScheduledForm(hint, message, datetime);
   //Finding user and checking if user is active
-  const user = await findUser(app, userId);
   res.status(200).json(scheduledForm);
+  const user = await findUser(app, userId);
   if (!isActiveUser(user)) {
     const responseUrl = req.body.response_url;
     const authUrl = `https://accounts.zoho.com/oauth/v2/auth?scope=ZohoCliq.Webhooks.CREATE&client_id=${config.client_id}&state=${userId}&response_type=code&redirect_uri=${config.redirect_uri}&access_type=offline&prompt=consent`;

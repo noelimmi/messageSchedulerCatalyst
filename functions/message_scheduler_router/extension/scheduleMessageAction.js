@@ -9,7 +9,6 @@ const scheduleMessageAction = async (req, res, next) => {
   const userId = req.body.params.user.id;
   const app = catalyst.initialize(req);
   //Finding user and checking if user is active
-  const user = await findUser(app, userId);
   // if (isActiveUser(user)) {
   let message = "";
   if (req.body.params.message && req.body.params.message.text) {
@@ -30,6 +29,7 @@ const scheduleMessageAction = async (req, res, next) => {
     datetime.time_zone_id = "Asia/Kolkata";
   }
   const scheduledForm = getScheduledForm(hint, message, datetime);
+  const user = await findUser(app, userId);
   res.status(200).json(scheduledForm);
   if (!isActiveUser(user)) {
     const responseUrl = req.body.response_url;
