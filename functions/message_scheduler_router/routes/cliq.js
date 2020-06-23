@@ -11,11 +11,12 @@ const scheduleFormHandler = require("../extension/scheduleFormHandler");
 const scheduleCommand = require("../extension/scheduleCommand");
 const viewScheduledCommand = require("../extension/viewScheduledCommand");
 const utilityButtonHandler = require("../extension/utilityButtonHandler");
+const verifier = require("../middleware/verifier");
 
 //Init Router
 const router = express.Router();
 
-router.post("/callback", async (req, res, next) => {
+router.post("/callback", verifier, async (req, res, next) => {
   try {
     const type = req.body.name;
     switch (type) {
