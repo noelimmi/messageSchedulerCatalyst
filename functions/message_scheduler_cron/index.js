@@ -12,8 +12,10 @@ const postToChat = async (cronDetails, context) => {
     //Get Zuid
     const zuid = cronDetails.getCronParam("zuid");
     //Get Message Details and Access Token
-    const { message, chatId } = await getMessageDetails(app, messageId);
-    const { accessToken, ROWID } = await getAccessTokenAndRowId(app, zuid);
+    const messagePromise = getMessageDetails(app, messageId);
+    const accessTokenPromise = getAccessTokenAndRowId(app, zuid);
+    const { message, chatId } = await messagePromise;
+    const { accessToken, ROWID } = await accessTokenPromise;
     //Checks if all required details are found..
     if (!message && !chatId && !accessToken && !ROWID) {
       throw new Error(
@@ -126,7 +128,7 @@ const getAccessTokenAndRowId = async (app, userId) => {
         }
       );
       const { access_token, expires_in } = tokenResponse.data;
-      await updateAccessToken(app, ROWID, access_token, expires_in);
+      updateAccessToken(app, ROWID, access_token, expires_in);
       return { accessToken: access_token, ROWID };
     }
   } catch (error) {
