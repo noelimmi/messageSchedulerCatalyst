@@ -21,7 +21,8 @@ const getResponseTable = (
         timezoneId
       )}*`;
       rowObj["Message"] = getDecryptedMessage(
-        msg["scheduledMessage"]["message"]
+        msg["scheduledMessage"]["message"],
+        msg["scheduledMessage"]["zuid"]
       );
       rowObj["Recipient"] = msg["scheduledMessage"]["chatName"] || "";
       rowObj["Status"] = msg["scheduledMessage"]["isComplete"]

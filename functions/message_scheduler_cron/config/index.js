@@ -11,7 +11,6 @@ const config = {
   scheduledMessageTableName: "scheduledMessage",
   encryptKey:
     "8324d46a5e30b55abc8c525b79fa7cffd9f95490bb8a3798d4969202b712a051",
-  encryptIv: "316079c909274baa68b2e7a0e2c04d6d",
   encryptAlgorithm: "aes-256-cbc",
 };
 module.exports = config;

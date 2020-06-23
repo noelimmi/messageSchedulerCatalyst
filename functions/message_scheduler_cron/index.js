@@ -22,7 +22,7 @@ const postToChat = async (cronDetails, context) => {
         "Error in getting message chatId Access Token and ROWID..."
       );
     }
-    const decryptedMessage = getDecryptedMessage(message);
+    const decryptedMessage = getDecryptedMessage(message, zuid);
     //Post To Chat
     await axios
       .post(
@@ -85,11 +85,24 @@ const getMessageDetails = async (app, messageId) => {
   }
 };
 
-const getDecryptedMessage = (text) => {
+const getEncryptedMessage = (text, zuid) => {
+  const encryptIv = crypto.createHash("md5").update(zuid).digest("hex");
+  let cipher = crypto.createCipheriv(
+    config.encryptAlgorithm,
+    Buffer.from(config.encryptKey, "hex"),
+    Buffer.from(encryptIv, "hex")
+  );
+  let encrypted = cipher.update(text);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  return encrypted.toString("hex");
+};
+
+const getDecryptedMessage = (text, zuid) => {
+  const encryptIv = crypto.createHash("md5").update(zuid).digest("hex");
   let decipher = crypto.createDecipheriv(
     config.encryptAlgorithm,
     Buffer.from(config.encryptKey, "hex"),
-    Buffer.from(config.encryptIv, "hex")
+    Buffer.from(encryptIv, "hex")
   );
   let decrypted = decipher.update(Buffer.from(text, "hex"));
   decrypted = Buffer.concat([decrypted, decipher.final()]);
@@ -104,15 +117,18 @@ const getAccessTokenAndRowId = async (app, userId) => {
     if (!response.length) {
       throw new Error("Cannot find details about that user.");
     }
-    const {
+    let {
+      zuid,
       accessToken,
       refreshToken,
       accessTokenExpires,
       ROWID,
     } = response[0][config.oauthTableName];
     if (checkExpire(parseInt(accessTokenExpires), Date.now())) {
+      accessToken = getDecryptedMessage(accessToken, zuid);
       return { accessToken, ROWID };
     } else {
+      refreshToken = getDecryptedMessage(refreshToken, zuid);
       const tokenResponse = await axios.post(
         "https://accounts.zoho.com/oauth/v2/token",
         null,
@@ -128,7 +144,7 @@ const getAccessTokenAndRowId = async (app, userId) => {
         }
       );
       const { access_token, expires_in } = tokenResponse.data;
-      updateAccessToken(app, ROWID, access_token, expires_in);
+      updateAccessToken(app, ROWID, access_token, expires_in, zuid);
       return { accessToken: access_token, ROWID };
     }
   } catch (error) {
@@ -141,13 +157,13 @@ const checkExpire = (expiretime, currentTime) => {
   return Math.round(expiretime / 1000) > Math.round(currentTime / 1000);
 };
 
-const updateAccessToken = async (app, ROWID, accessToken, expires_in) => {
+const updateAccessToken = async (app, ROWID, accessToken, expires_in, zuid) => {
   try {
     const datastore = app.datastore();
     const table = datastore.table(config.oauthTableName);
     const accessTokenExpires = Date.now() + parseInt(expires_in) * 1000;
     const updatedRowData = {
-      accessToken,
+      accessToken: getEncryptedMessage(accessToken, zuid),
       accessTokenExpires,
       ROWID,
     };

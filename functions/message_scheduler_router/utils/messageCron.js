@@ -57,7 +57,10 @@ const updateCronId = async (app, ROWID, cronId) => {
 const addToMessageDb = async (app, rowData) => {
   try {
     rowData["scheduledTimestamp"] = getDbTime(rowData["scheduledTimestamp"]);
-    rowData["message"] = getEncryptedMessage(rowData["message"]);
+    rowData["message"] = getEncryptedMessage(
+      rowData["message"],
+      rowData["zuid"]
+    );
     rowData["isComplete"] = false;
     const datastore = app.datastore();
     const table = datastore.table(config.scheduledMessageTableName);
@@ -69,26 +72,28 @@ const addToMessageDb = async (app, rowData) => {
   }
 };
 
-const getEncryptedMessage = (text) => {
+const getEncryptedMessage = (text, zuid) => {
+  const encryptIv = crypto.createHash("md5").update(zuid).digest("hex");
   let cipher = crypto.createCipheriv(
     config.encryptAlgorithm,
     Buffer.from(config.encryptKey, "hex"),
-    Buffer.from(config.encryptIv, "hex")
+    Buffer.from(encryptIv, "hex")
   );
   let encrypted = cipher.update(text);
   encrypted = Buffer.concat([encrypted, cipher.final()]);
   return encrypted.toString("hex");
 };
 
-const getDecryptedMessage = (text) => {
+const getDecryptedMessage = (text, zuid) => {
+  const encryptIv = crypto.createHash("md5").update(zuid).digest("hex");
   let decipher = crypto.createDecipheriv(
     config.encryptAlgorithm,
     Buffer.from(config.encryptKey, "hex"),
-    Buffer.from(config.encryptIv, "hex")
+    Buffer.from(encryptIv, "hex")
   );
   let decrypted = decipher.update(Buffer.from(text, "hex"));
   decrypted = Buffer.concat([decrypted, decipher.final()]);
   return decrypted.toString();
 };
 
-module.exports = { createCron, getDecryptedMessage };
+module.exports = { createCron, getDecryptedMessage, getEncryptedMessage };

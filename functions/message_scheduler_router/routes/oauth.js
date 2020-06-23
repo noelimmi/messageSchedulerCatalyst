@@ -2,6 +2,7 @@ const express = require("express");
 const config = require("../config");
 const catalyst = require("zcatalyst-sdk-node");
 const axios = require("axios");
+const { getEncryptedMessage } = require("../utils/messageCron");
 
 //Init Router
 const router = express.Router();
@@ -45,8 +46,8 @@ router.get("/callback", async (req, res) => {
     const app = catalyst.initialize(req);
     const rowData = {
       zuid: state,
-      accessToken: access_token,
-      refreshToken: refresh_token,
+      accessToken: getEncryptedMessage(access_token, state),
+      refreshToken: getEncryptedMessage(refresh_token, state),
       accessTokenExpires: expireTimestamp,
     };
 
