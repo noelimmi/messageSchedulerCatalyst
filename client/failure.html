@@ -1,75 +1,407 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <link
-      href="https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,700,900&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <style>
-    body {
-      text-align: center;
-      padding: 40px 0;
-      background: #ebf0f5;
-    }
-    h1 {
-      color: #e60707;
-      font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
-      font-weight: 900;
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
-    p {
-      color: #404f5e;
-      font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
-      font-size: 20px;
-      margin: 0;
-    }
-    i {
-      color: #e60707;
-      font-size: 100px;
-      line-height: 200px;
-      margin-left: -15px;
-    }
-    .card {
-      background: white;
-      padding: 60px;
-      border-radius: 4px;
-      box-shadow: 0 2px 3px #c8d0d8;
-      display: inline-block;
-      margin: 0 auto;
-    }
-    .btn-primary {
-      background-color: #e60707;
-      margin-top: 15px;
-      border: none;
-      color: white;
-      padding: 15px 32px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-    }
-  </style>
-  <body>
-    <div class="card">
-      <div
-        style="
-          border-radius: 200px;
-          height: 200px;
-          width: 200px;
-          background: #f8faf5;
-          margin: 0 auto;
-        "
-      >
-        <i class="checkmark">&#10006;</i>
-      </div>
-      <h1>Failure</h1>
-      <p>
-        Something went wrong. Please try again after sometime!
-      </p>
-      <a class="btn-primary" href="https://cliq.zoho.com/index.do"
-        >Go Back To Cliq</a
-      >
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Catalyst CLI</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <style media="screen">
+        html,
+        body {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        .modalbox.error {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+            background: #fff;
+            padding: 25px 25px 15px;
+            text-align: center;
+        }
+
+        .modalbox.error.animate .icon {
+            -webkit-animation: fall-in 0.75s;
+            -moz-animation: fall-in 0.75s;
+            -o-animation: fall-in 0.75s;
+            animation: fall-in 0.75s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        }
+
+        .modalbox.error h1 {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .modalbox.error p {
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .modalbox.error button,
+        .modalbox.error button:active,
+        .modalbox.error button:focus {
+            -webkit-transition: all 0.1s ease-in-out;
+            transition: all 0.1s ease-in-out;
+            -webkit-border-radius: 30px;
+            -moz-border-radius: 30px;
+            border-radius: 30px;
+            margin-top: 15px;
+            width: 80%;
+            background: transparent;
+            color: #4caf50;
+            border-color: #4caf50;
+            outline: none;
+        }
+
+        .modalbox.error button:hover,
+        .modalbox.error button:active:hover,
+        .modalbox.error button:focus:hover {
+            color: #fff;
+            background: #4caf50;
+            border-color: transparent;
+        }
+
+        .modalbox.error .icon {
+            position: relative;
+            margin: 0 auto;
+            margin-top: -75px;
+            background: #4caf50;
+            height: 100px;
+            width: 100px;
+            border-radius: 50%;
+        }
+
+        .modalbox.error .icon span {
+            font-size: 4em;
+            color: #fff;
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        .modalbox.error button,
+        .modalbox.error button:active,
+        .modalbox.error button:focus {
+            color: #f44336;
+            border-color: #f44336;
+        }
+
+        .modalbox.error button:hover,
+        .modalbox.error button:active:hover,
+        .modalbox.error button:focus:hover {
+            color: #fff;
+            background: #f44336;
+        }
+
+        .modalbox.error .icon {
+            background: #f44336;
+        }
+
+        .modalbox.error .icon span {
+            padding-top: 25px;
+        }
+
+        .center {
+            float: none;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @-webkit-keyframes fall-in {
+            0% {
+                -ms-transform: scale(3, 3);
+                -webkit-transform: scale(3, 3);
+                transform: scale(3, 3);
+                opacity: 0;
+            }
+
+            50% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+                opacity: 1;
+            }
+
+            60% {
+                -ms-transform: scale(1.1, 1.1);
+                -webkit-transform: scale(1.1, 1.1);
+                transform: scale(1.1, 1.1);
+            }
+
+            100% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+            }
+        }
+
+        @-moz-keyframes fall-in {
+            0% {
+                -ms-transform: scale(3, 3);
+                -webkit-transform: scale(3, 3);
+                transform: scale(3, 3);
+                opacity: 0;
+            }
+
+            50% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+                opacity: 1;
+            }
+
+            60% {
+                -ms-transform: scale(1.1, 1.1);
+                -webkit-transform: scale(1.1, 1.1);
+                transform: scale(1.1, 1.1);
+            }
+
+            100% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+            }
+        }
+
+        @-o-keyframes fall-in {
+            0% {
+                -ms-transform: scale(3, 3);
+                -webkit-transform: scale(3, 3);
+                transform: scale(3, 3);
+                opacity: 0;
+            }
+
+            50% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+                opacity: 1;
+            }
+
+            60% {
+                -ms-transform: scale(1.1, 1.1);
+                -webkit-transform: scale(1.1, 1.1);
+                transform: scale(1.1, 1.1);
+            }
+
+            100% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+            }
+        }
+
+        @-webkit-keyframes plunge {
+            0% {
+                margin-top: -100%;
+            }
+
+            100% {
+                margin-top: 25%;
+            }
+        }
+
+        @-moz-keyframes plunge {
+            0% {
+                margin-top: -100%;
+            }
+
+            100% {
+                margin-top: 25%;
+            }
+        }
+
+        @-o-keyframes plunge {
+            0% {
+                margin-top: -100%;
+            }
+
+            100% {
+                margin-top: 25%;
+            }
+        }
+
+        @-moz-keyframes fall-in {
+            0% {
+                -ms-transform: scale(3, 3);
+                -webkit-transform: scale(3, 3);
+                transform: scale(3, 3);
+                opacity: 0;
+            }
+
+            50% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+                opacity: 1;
+            }
+
+            60% {
+                -ms-transform: scale(1.1, 1.1);
+                -webkit-transform: scale(1.1, 1.1);
+                transform: scale(1.1, 1.1);
+            }
+
+            100% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+            }
+        }
+
+        @-webkit-keyframes fall-in {
+            0% {
+                -ms-transform: scale(3, 3);
+                -webkit-transform: scale(3, 3);
+                transform: scale(3, 3);
+                opacity: 0;
+            }
+
+            50% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+                opacity: 1;
+            }
+
+            60% {
+                -ms-transform: scale(1.1, 1.1);
+                -webkit-transform: scale(1.1, 1.1);
+                transform: scale(1.1, 1.1);
+            }
+
+            100% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+            }
+        }
+
+        @-o-keyframes fall-in {
+            0% {
+                -ms-transform: scale(3, 3);
+                -webkit-transform: scale(3, 3);
+                transform: scale(3, 3);
+                opacity: 0;
+            }
+
+            50% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+                opacity: 1;
+            }
+
+            60% {
+                -ms-transform: scale(1.1, 1.1);
+                -webkit-transform: scale(1.1, 1.1);
+                transform: scale(1.1, 1.1);
+            }
+
+            100% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+            }
+        }
+
+        @keyframes fall-in {
+            0% {
+                -ms-transform: scale(3, 3);
+                -webkit-transform: scale(3, 3);
+                transform: scale(3, 3);
+                opacity: 0;
+            }
+
+            50% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+                opacity: 1;
+            }
+
+            60% {
+                -ms-transform: scale(1.1, 1.1);
+                -webkit-transform: scale(1.1, 1.1);
+                transform: scale(1.1, 1.1);
+            }
+
+            100% {
+                -ms-transform: scale(1, 1);
+                -webkit-transform: scale(1, 1);
+                transform: scale(1, 1);
+            }
+        }
+
+        @-moz-keyframes plunge {
+            0% {
+                margin-top: -100%;
+            }
+
+            100% {
+                margin-top: 15%;
+            }
+        }
+
+        @-webkit-keyframes plunge {
+            0% {
+                margin-top: -100%;
+            }
+
+            100% {
+                margin-top: 15%;
+            }
+        }
+
+        @-o-keyframes plunge {
+            0% {
+                margin-top: -100%;
+            }
+
+            100% {
+                margin-top: 15%;
+            }
+        }
+
+        @keyframes plunge {
+            0% {
+                margin-top: -100%;
+            }
+
+            100% {
+                margin-top: 15%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="modalbox error col-sm-8 col-md-6 col-lg-5 center animate">
+                <div class="icon">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </div>
+                <!--/.icon-->
+                <h1>Connection Failure!</h1>
+                <p>Something went wrong. Please try again later.
+                    <br>Go back to <b><a href="https://cliq.zoho.com/index.do">Cliq</a></b>
+                </p>
+            </div>
+            <!--/.success-->
+        </div>
+        <!--/.row-->
     </div>
-  </body>
+    <!--/.container-->
+</body>
+
 </html>

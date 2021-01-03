@@ -30,6 +30,7 @@ const createCron = async (app, cronBody) => {
       };
       //Create a Cron
       const cronDetails = await cron.createCron(cronConfig);
+      console.log("New Cron has been added -> Cron Name:"+cronDetails["cron_name"]+" in scheduledTime "+scheduledTimestamp+" for zuid"+zuid);
       await updateCronId(app, ROWID, cronDetails.id);
     } else {
       throw new Error("Error adding message to Db.");
@@ -65,6 +66,7 @@ const addToMessageDb = async (app, rowData) => {
     const datastore = app.datastore();
     const table = datastore.table(config.scheduledMessageTableName);
     const newRow = await table.insertRow(rowData);
+    console.log("New Row has been added -> ROWID:"+newRow["ROWID"]);
     return newRow;
   } catch (error) {
     console.log(error);
