@@ -9,13 +9,16 @@ const router = express.Router();
 
 router.get("/callback", async (req, res) => {
   try {
+
     //Get Code and State(User ID);
     const code = req.query.code;
     const state = req.query.state;
+    const dc = req.query["location"];
+    const iamBaseUrl = req.query["accounts-server"];
 
     //Request Access and Refresh Token
     const tokenResponse = await axios.post(
-      "https://accounts.zoho.com/oauth/v2/token",
+      `${iamBaseUrl}/oauth/v2/token`,
       null,
       {
         params: {
@@ -54,11 +57,11 @@ router.get("/callback", async (req, res) => {
     //Adding Table Row and then redirecting
     addUpdateUser(app, rowData)
       .then((row) => {
-        res.redirect(`${config.baseUrl}/app/success.html`);
+        res.redirect(`${config.baseUrl}/app/success.html?dc=${dc}`);
       })
       .catch((err) => {
         console.error(err);
-        res.redirect(`${config.baseUrl}/app/failure.html`);
+        res.redirect(`${config.baseUrl}/app/failure.html?dc=${dc}`);
       });
   } catch (error) {
     console.log("Error Occured..");
