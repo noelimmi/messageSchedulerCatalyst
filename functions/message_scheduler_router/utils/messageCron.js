@@ -3,7 +3,7 @@ const config = require("../config");
 const crypto = require("crypto");
 const { getDbTime } = require("./dateTime");
 
-const createCron = async (app, cronBody) => {
+const createCron = async (app, cronBody, messageId) => {
   try {
     //scheduledTimestamp
     const { scheduledTimestamp, zuid } = cronBody;
@@ -22,6 +22,7 @@ const createCron = async (app, cronBody) => {
           params: {
             ROWID,
             zuid,
+            messageId
           },
         },
         job_detail: {

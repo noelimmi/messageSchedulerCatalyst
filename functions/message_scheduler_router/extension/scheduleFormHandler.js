@@ -10,7 +10,7 @@ const scheduleFormHandler = (req, res, next) => {
   const zuid = req.body.params.user.id;
   const chatId = req.body.params.chat.id;
   const chatName = getChatTitle(req.body.params.chat);
-  const { scheduledTime, message } = req.body.params.form.values;
+  const { scheduledTime, message, messageId } = req.body.params.form.values;
 
   let { time_zone_id, date_time } = scheduledTime;
 
@@ -29,7 +29,7 @@ const scheduleFormHandler = (req, res, next) => {
       chatName,
     };
     //Creating cron in a deattached manner
-    setTimeout(() => createCron(app, cronBody), 0);
+    setTimeout(() => createCron(app, cronBody, messageId), 0);
 
     return res.status(200).json({
       output: {

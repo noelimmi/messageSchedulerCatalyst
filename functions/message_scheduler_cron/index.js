@@ -11,6 +11,9 @@ const postToChat = async (cronDetails, context) => {
     const messageId = cronDetails.getCronParam("ROWID");
     //Get Zuid
     const zuid = cronDetails.getCronParam("zuid");
+    console.log("Cron Running For ROWID-"+messageId+" ZUID-"+zuid);
+    //Get reply message Id
+    const replyId = cronDetails.getCronParam("messageId");
     //Get Message Details and Access Token
     const messagePromise = getMessageDetails(app, messageId, context);
     const accessTokenPromise = getAccessTokenAndRowId(app, zuid, context);
@@ -23,13 +26,17 @@ const postToChat = async (cronDetails, context) => {
       );
     }
     const decryptedMessage = getDecryptedMessage(message, zuid);
+    const reqBody = {};
+    reqBody["text"] = decryptedMessage;
+    if(replyId) {
+      console.log("Cron message is replied to "+replyId);
+      reqBody["reply_to"] = replyId;
+    }
     //Post To Chat
     await axios
       .post(
         `https://cliq.zoho.com/api/v2/chats/${chatId}/message`,
-        {
-          text: decryptedMessage,
-        },
+        reqBody,
         {
           headers: {
             "Content-Type": "application/json",

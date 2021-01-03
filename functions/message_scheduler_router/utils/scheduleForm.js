@@ -9,7 +9,7 @@ const getChatTitle = (chatObj) => {
   return title;
 };
 
-const getScheduledForm = (hint = "", message = "", datetime = {}) => ({
+const getScheduledForm = (hint = "", message = "", datetime = {}, messageId) => ({
   output: {
     type: "form",
     title: "Schedule Message",
@@ -35,6 +35,11 @@ const getScheduledForm = (hint = "", message = "", datetime = {}) => ({
         mandatory: true,
         hint: "Please enter time ahead of current time",
         value: datetime,
+      },
+      {
+        type: "hidden",
+        name: "messageId",
+        value: messageId,
       },
     ],
     action: {
