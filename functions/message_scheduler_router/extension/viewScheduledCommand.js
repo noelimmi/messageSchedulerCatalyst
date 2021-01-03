@@ -7,6 +7,7 @@ const {
 const viewScheduledCommand = async (req, res, next) => {
   try {
     const userId = req.body.params.user.id;
+    console.log("View scheduled called for "+userId);
     const app = catalyst.initialize(req);
     const executionTimestamp = req.body.timestamp;
     let timezone = req.body.params.user.timezone;
