@@ -18,9 +18,9 @@ const postToChat = async (cronDetails, context) => {
     const messagePromise = getMessageDetails(app, messageId, context);
     const accessTokenPromise = getAccessTokenAndRowId(app, zuid, context);
     const { message, chatId } = await messagePromise;
-    const { accessToken, ROWID } = await accessTokenPromise;
+    const { accessToken, ROWID, domain } = await accessTokenPromise;
     //Checks if all required details are found..
-    if (!message && !chatId && !accessToken && !ROWID) {
+    if (!message && !chatId && !accessToken && !ROWID && !domain) {
       throw new Error(
         "Error in getting message chatId Access Token and ROWID..."
       );
@@ -35,7 +35,7 @@ const postToChat = async (cronDetails, context) => {
     //Post To Chat
     await axios
       .post(
-        `https://cliq.zoho.com/api/v2/chats/${chatId}/message`,
+        `https://cliq.${domain}/api/v2/chats/${chatId}/message`,
         reqBody,
         {
           headers: {
@@ -121,12 +121,12 @@ const getDecryptedMessage = (text, zuid) => {
 const getAccessTokenAndRowId = async (app, userId, context) => {
   try {
     const zcql = app.zcql();
-    const query = `SELECT accessToken, refreshToken, accessTokenExpires, ROWID FROM ${config.oauthTableName} WHERE zuid=${userId}`;
+    const query = `SELECT accessToken, refreshToken, accessTokenExpires, ROWID, domain FROM ${config.oauthTableName} WHERE zuid=${userId}`;
     const response = await zcql.executeZCQLQuery(query);
     if (!response.length) {
       throw new Error("Cannot find details about that user.");
     }
-    let { accessToken, refreshToken, accessTokenExpires, ROWID } = response[0][
+    let { accessToken, refreshToken, accessTokenExpires, ROWID, domain } = response[0][
       config.oauthTableName
     ];
     if (checkExpire(parseInt(accessTokenExpires), Date.now())) {
@@ -135,7 +135,7 @@ const getAccessTokenAndRowId = async (app, userId, context) => {
     } else {
       refreshToken = getDecryptedMessage(refreshToken, userId);
       const tokenResponse = await axios.post(
-        "https://accounts.zoho.com/oauth/v2/token",
+        `https://accounts.${domain}/oauth/v2/token`,
         null,
         {
           params: {
@@ -157,12 +157,12 @@ const getAccessTokenAndRowId = async (app, userId, context) => {
         userId,
         context
       );
-      return { accessToken: access_token, ROWID };
+      return { accessToken: access_token, ROWID, domain };
     }
   } catch (error) {
     context.closeWithFailure();
     console.log(error);
-    return { accessToken: null, ROWID: null };
+    return { accessToken: null, ROWID: null , domain:null };
   }
 };
 

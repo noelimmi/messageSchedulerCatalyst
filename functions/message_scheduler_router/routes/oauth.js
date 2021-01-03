@@ -3,6 +3,7 @@ const config = require("../config");
 const catalyst = require("zcatalyst-sdk-node");
 const axios = require("axios");
 const { getEncryptedMessage } = require("../utils/messageCron");
+const { CommonUtil } = require("../utils/commonUtil");
 
 //Init Router
 const router = express.Router();
@@ -52,6 +53,7 @@ router.get("/callback", async (req, res) => {
       accessToken: getEncryptedMessage(access_token, state),
       refreshToken: getEncryptedMessage(refresh_token, state),
       accessTokenExpires: expireTimestamp,
+      domain : CommonUtil.getDomainFromDC(dc),
     };
 
     //Adding Table Row and then redirecting
@@ -67,7 +69,7 @@ router.get("/callback", async (req, res) => {
     console.log("Error Occured..");
     console.error(error);
     //Failure Redirect
-    return res.redirect(`${config.baseUrl}/app/failure.html`);
+    return res.redirect(`${config.baseUrl}/app/failure.html?dc=${dc}`);
   }
 });
 

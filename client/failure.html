@@ -394,7 +394,7 @@
                 <!--/.icon-->
                 <h1>Connection Failure!</h1>
                 <p>Something went wrong. Please try again later.
-                    <br>Go back to <b><a href="https://cliq.zoho.com/index.do">Cliq</a></b>
+                    <br>Go back to <b><a id="cliqLink">Cliq</a></b>
                 </p>
             </div>
             <!--/.success-->
@@ -403,5 +403,32 @@
     </div>
     <!--/.container-->
 </body>
-
+<script>
+    init();
+    function init(){
+        var urlParams = new URLSearchParams(window.location.search);
+        window["_cliqDomain"] = "https://cliq.zoho.com/index.do";
+        if(urlParams.has('dc')){
+            dc = urlParams.get('dc');
+            window["_cliqDomain"] = `https://cliq.${getDomainFromDC(dc)}/index.do`
+        }
+        document.getElementById("cliqLink").href =  window["_cliqDomain"];
+    }
+    function getDomainFromDC(dc){ 
+        const EUDC   = "zoho.eu";
+        const USDC   = "zoho.com";
+        const INDC   = "zoho.in";
+        const AUDC   = "zoho.com.au";
+        if(dc && typeof dc === "string"){
+          dc = dc.toUpperCase();
+          switch(dc){
+            case "EU" : return EUDC;
+            case "IN" : return INDC;
+            case "AU" : return AUDC;
+            default   : return USDC;
+          }
+        }
+        return USDC;
+    }
+</script>
 </html>

@@ -6,12 +6,16 @@ CommonUtil = {
         const USDC   = "zoho.com";
         const INDC   = "zoho.in";
         const AUDC   = "zoho.com.au";
-        switch(dc){
+        if(dc && typeof dc === "string"){
+          dc = dc.toUpperCase();
+          switch(dc){
             case "EU" : return EUDC;
             case "IN" : return INDC;
             case "AU" : return AUDC;
             default   : return USDC;
+          }
         }
+        return USDC;
     },
     getConnectionResponse: (dc,userId) => {
         const currDC = CommonUtil.getDomainFromDC(dc);
@@ -32,7 +36,8 @@ CommonUtil = {
             ],
           },
         };
-    }
+    },
+    
 };
 
 module.exports = {
