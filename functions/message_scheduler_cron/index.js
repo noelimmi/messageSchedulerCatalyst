@@ -121,18 +121,20 @@ const getDecryptedMessage = (text, zuid) => {
 
 const getAccessTokenAndRowId = async (app, userId, context) => {
   try {
+    console.log("Fetching oauth details for "+userId);
     const zcql = app.zcql();
     const query = `SELECT accessToken, refreshToken, accessTokenExpires, ROWID, domain FROM ${config.oauthTableName} WHERE zuid=${userId}`;
     const response = await zcql.executeZCQLQuery(query);
     if (!response.length) {
       throw new Error("Cannot find details about that user.");
     }
+    console.log("Table response for "+userId,response);
     let { accessToken, refreshToken, accessTokenExpires, ROWID, domain } = response[0][
       config.oauthTableName
     ];
     if (checkExpire(parseInt(accessTokenExpires), Date.now())) {
       accessToken = getDecryptedMessage(accessToken, userId);
-      return { accessToken, ROWID };
+      return { accessToken, ROWID, domain };
     } else {
       refreshToken = getDecryptedMessage(refreshToken, userId);
       const tokenResponse = await axios.post(
