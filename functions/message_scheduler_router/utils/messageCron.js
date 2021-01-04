@@ -37,7 +37,7 @@ const createCron = async (app, cronBody, messageId) => {
       throw new Error("Error adding message to Db.");
     }
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
   }
 };
 
@@ -51,7 +51,7 @@ const updateCronId = async (app, ROWID, cronId) => {
     };
     await table.updateRow(updatedRowData);
   } catch (error) {
-    console.log(error.message);
+    console.error(error);
     return;
   }
 };
@@ -70,7 +70,7 @@ const addToMessageDb = async (app, rowData) => {
     console.log("New Row has been added -> ROWID:"+newRow["ROWID"]);
     return newRow;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return null;
   }
 };

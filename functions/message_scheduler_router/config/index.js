@@ -1,5 +1,5 @@
 const isDev = true;
-const baseUrl = `https://messagescheduler-701800584.${isDev ?"development":"production"}.zohocatalyst.com`;
+const baseUrl = `https://664143a3aeb7.ngrok.io`;
 const config = {
     baseUrl,
     client_id: "1000.35X3R7HJSD7AIQZX4PP2CNH5LR5QGY",

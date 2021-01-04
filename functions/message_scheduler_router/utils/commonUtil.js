@@ -6,12 +6,14 @@ CommonUtil = {
         const USDC   = "zoho.com";
         const INDC   = "zoho.in";
         const AUDC   = "zoho.com.au";
+        const CNDC   = "zoho.com.cn";
         if(dc && typeof dc === "string"){
           dc = dc.toUpperCase();
           switch(dc){
             case "EU" : return EUDC;
             case "IN" : return INDC;
             case "AU" : return AUDC;
+            case "CN" : return CNDC;
             default   : return USDC;
           }
         }
@@ -19,7 +21,6 @@ CommonUtil = {
     },
     getConnectionResponse: (dc,userId) => {
         const currDC = CommonUtil.getDomainFromDC(dc);
-        console.log(currDC);
         const authUrl = `https://accounts.${currDC}/oauth/v2/auth?scope=ZohoCliq.Webhooks.CREATE&client_id=${config.client_id}&state=${userId}&response_type=code&redirect_uri=${config.redirect_uri}&access_type=offline&prompt=consent`;
         return {
           output: {

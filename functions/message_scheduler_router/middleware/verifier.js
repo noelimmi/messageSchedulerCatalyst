@@ -21,7 +21,7 @@ const verifier = (req, res, next) => {
     }
     return next();
   } catch (error) {
-    console.log(error.message);
+    console.error(error);
     return res
       .status(400)
       .json({ error: "Request Not Allowed Validation Failed." });

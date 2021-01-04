@@ -9,12 +9,13 @@ const { CommonUtil } = require("../utils/commonUtil");
 const router = express.Router();
 
 router.get("/callback", async (req, res) => {
+  let dc = null;
   try {
 
     //Get Code and State(User ID);
     const code = req.query.code;
     const state = req.query.state;
-    const dc = req.query["location"];
+    dc = req.query["location"];
     const iamBaseUrl = req.query["accounts-server"];
 
     //Request Access and Refresh Token

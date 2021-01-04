@@ -51,6 +51,7 @@ const postToChat = async (cronDetails, context) => {
         }
       })
       .catch(async (err) => {
+        console.error(err);
         const result = await setIsActiveUser(app, ROWID, false);
         if (result) {
           context.closeWithFailure();
@@ -58,7 +59,7 @@ const postToChat = async (cronDetails, context) => {
       });
     context.closeWithSuccess();
   } catch (error) {
-    console.log(error);
+    console.error(error);
     context.closeWithFailure();
   }
 };
